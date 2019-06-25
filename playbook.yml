@@ -1,0 +1,81 @@
+---
+- name: Docstruct building
+  hosts: all
+  tasks:
+    - authorized_key:     
+        key: https://github.com/belonesox.keys
+        user: root
+        state: present
+    - yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present  validate_certs=no
+    - yum: name={{item}} update_cache=no
+      with_items:
+        # - openssh-server
+        - python2-pip
+        - numpy 
+        - scipy
+        - python-lxml
+        - python-pygments
+        - scons
+        - ghostscript
+        - graphviz
+        # - python-matplotlib-svg
+        - python2-matplotlib
+        - inkscape
+        - git
+        - texlive-texmf-dvips
+        - texlive-texmf-fonts
+        - texlive-xetex
+        - texlive-dvips        
+        - texlive-latex
+        - texlive-latex-bin
+        - texlive-type1cm
+        - texlive-extsizes
+        - texlive-xecyr
+        - texlive-textpos        
+        - dvisvgm
+        - texlive-dvipng-bin
+        - texlive-ucs
+        - texlive-cyrillic
+        - texlive-lh
+        - texlive-euenc
+        - texlive-eepic
+        - texlive-boxedminipage
+        - texlive-beamer
+        - texlive-cmap
+        - texlive-fancyhdr
+        - texlive-fancybox
+        - texlive-hyphen-russian
+        - texlive-amscls
+    - pip: name="{{item}}" editable=false
+      with_items: 
+        - "networkx==1.9"
+        - 'git+https://github.com/belonesox/python-belonesox-tools.git'
+    # - pip: name='git+https://github.com/belonesox/python-belonesox-tools.git' editable=false
+    - pip: name='git+https://github.com/belonesox/docsassembler.git' editable=false
+    - pip: name='git+https://github.com/belonesox/python-latex-helpers.git' editable=false
+    - file: path=/usr/share/texlive/texmf-dist/tex/latex/docstruct/ state=directory
+    - copy:
+        src: /usr/share/texmf-dist/tex/latex/docstruct/docstruct.sty
+        dest: /usr/share/texlive/texmf-dist/tex/latex/docstruct/docstruct.sty
+    - copy: 
+        src:  ./files/ 
+        dest: /
+    - shell: texhash
+    # - file: path=/usr/share/texlivetexmf-dist/scripts/pdfcrop/ state=directory
+    # - copy:
+    #     src: /usr/share/texmf-dist/scripts/pdfcrop/pdfcrop.pl        
+    #     dest: /usr/share/texlivetexmf-dist/scripts/pdfcrop/pdfcrop.pl        
+    # - file: path=/usr/share/texlivetexmf-dist/scripts/pdfcrop/ state=directory
+    - file:                                                                                                                                                                   
+        src:  /usr/share/texlive/texmf-dist/scripts/pdfcrop/pdfcrop.pl
+        dest: /usr/bin/pdfcrop
+        state: link  
+        mode: a+x
+
+    - file:                                                                                                                                                                   
+        path:  /usr/share/texlive/texmf-dist/scripts/pdfcrop/pdfcrop.pl
+        mode: a+x
+
+    - file:                                                                                                                                                                   
+        path:  /usr/bin/biber
+        mode: a+x
